@@ -1,0 +1,20 @@
+[package]
+name = "dandori-cli"
+description = "CLI (`dan`) for Dandori single-task queue"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "dan"
+path = "src/main.rs"
+
+[dependencies]
+dandori-core.workspace = true
+chrono.workspace = true
+clap.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true

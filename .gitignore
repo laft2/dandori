@@ -1,0 +1,25 @@
+# Rust
+/target/
+**/target/
+crates/dandori-app/gen/
+
+# Node
+node_modules/
+dist/
+
+# Local data / secrets
+.mise/
+*.db
+*.db-wal
+*.db-shm
+.env
+.env.*
+!.env.example
+mise.local.toml
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/

@@ -1,0 +1,23 @@
+[tools]
+rust = { version = "1.98.1", components = "clippy,rustfmt" }
+node = "24.20.0"
+
+[tasks.test]
+description = "Run all Rust tests"
+run = "cargo test --workspace"
+
+[tasks.lint]
+description = "Run clippy, rustfmt, and frontend build check"
+run = [
+  "cargo fmt --all -- --check",
+  "cargo clippy --workspace --all-targets -- -D warnings",
+  "npm run build",
+]
+
+[tasks.dan]
+description = "Run the dan CLI (e.g. mise run dan -- list)"
+run = "cargo run -q -p dandori-cli --"
+
+[tasks.app]
+description = "Launch the Dandori desktop app in development mode"
+run = "cargo run -p dandori-app"
