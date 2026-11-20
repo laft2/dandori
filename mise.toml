@@ -19,5 +19,9 @@ description = "Run the dan CLI (e.g. mise run dan -- list)"
 run = "cargo run -q -p dandori-cli --"
 
 [tasks.app]
-description = "Launch the Dandori desktop app in development mode"
+description = "Launch the Dandori desktop app (uses built dist/)"
+run = "cargo run -p dandori-app --features custom-protocol"
+
+[tasks.app-dev]
+description = "Launch the Dandori desktop app connected to Vite dev server (run npm run dev separately)"
 run = "cargo run -p dandori-app"
