@@ -11,6 +11,34 @@
   - **人間の Undo（`⌘Z`）** と **AI のセッション単位ロールバック** を分離し、競合検出も備えています。
 - **目に優しいライト UI**：オフホワイト背景（`#F6F5F1`）と高コントラストの文字色、文字サイズ変更（`⌘+` / `⌘-`）に対応。
 
+## インストール
+
+### CLI（`dan`）— `mise` 経由（推奨）
+
+GitHub Releases のビルド済みバイナリ（macOS Apple Silicon / Windows x64）をそのまま取得できます。
+
+```sh
+mise use -g 'github:laft2/dandori[matching=dan-]@latest'
+```
+
+`~/.config/mise/config.toml` に直接記述する場合：
+
+```toml
+[tools]
+"github:laft2/dandori" = { version = "latest", matching = "dan-" }
+```
+
+更新は `mise upgrade` で行えます。
+
+### デスクトップアプリ
+
+[GitHub Releases](https://github.com/laft2/dandori/releases) から OS 向けのインストーラをダウンロードしてください。
+
+- macOS 版は未署名ビルドのため、初回起動前に以下を実行してください：
+  ```sh
+  xattr -cr /Applications/Dandori.app
+  ```
+
 ## 構成
 
 ```
@@ -40,10 +68,13 @@ mise run test
 cargo run -q -p dandori-cli -- list
 cargo run -q -p dandori-cli -- guide
 
-# デスクトップアプリを起動（フロントエンド開発サーバー + Tauri）
+# デスクトップアプリを起動（ビルド済み dist/ を使用）
+mise run app
+
+# 開発サーバー併用（ホットリロード）
 npm run dev
 # 別ターミナルで:
-cargo run -p dandori-app
+mise run app-dev
 ```
 
 ## 環境変数
@@ -58,7 +89,3 @@ cargo run -p dandori-app
 - **CI**（`.github/workflows/ci.yml`）：すべての `push` および `main` への PR で macOS / Windows のテスト・`clippy`・`rustfmt`・フロントエンドビルドを実行します。
 - **Release**（`.github/workflows/release.yml`）：`main` への `push` で [Release Please](https://github.com/googleapis/release-please) がリリース PR を自動作成し、マージすると macOS (Apple Silicon) / Windows (x64) 向けのデスクトップアプリと `dan` CLI をビルドして GitHub Releases に公開します。
   - GitHub リポジトリの `Settings → Actions → General → Workflow permissions` で **「Allow GitHub Actions to create and approve pull requests」** を有効にしてください。
-  - macOS 版は未署名ビルドのため、初回起動前に以下を実行してください：
-    ```sh
-    xattr -cr /Applications/Dandori.app
-    ```
