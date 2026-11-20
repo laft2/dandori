@@ -6,7 +6,7 @@ members = ["crates/dandori-core", "crates/dandori-cli", "crates/dandori-app"]
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
-repository = "https://github.com/OWNER/dandori"
+repository = "https://github.com/laft2/dandori"
 
 [workspace.dependencies]
 dandori-core = { path = "crates/dandori-core" }

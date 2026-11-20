@@ -4,9 +4,9 @@
   "version": "0.1.0",
   "identifier": "app.dandori.desktop",
   "build": {
-    "beforeDevCommand": "npm run dev",
+    "beforeDevCommand": "npm --prefix ../.. run dev",
     "devUrl": "http://localhost:5173",
-    "beforeBuildCommand": "npm run build",
+    "beforeBuildCommand": "npm --prefix ../.. run build",
     "frontendDist": "../../dist"
   },
   "app": {
@@ -28,6 +28,7 @@
     "targets": "all",
     "icon": [
       "icons/icon.png",
+      "icons/icon.icns",
       "icons/icon.ico"
     ]
   }

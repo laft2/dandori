@@ -52,3 +52,13 @@ cargo run -p dandori-app
 |---|---|
 | `DANDORI_DB` | DB ファイルの保存先を上書きします（省略時は OS 標準のアプリデータフォルダ内 `Dandori/dandori.db`） |
 | `DANDORI_SESSION` | CLI 操作を記録するセッション ID を明示指定します |
+
+## CI / リリース（GitHub Actions）
+
+- **CI**（`.github/workflows/ci.yml`）：すべての `push` および `main` への PR で macOS / Windows のテスト・`clippy`・`rustfmt`・フロントエンドビルドを実行します。
+- **Release**（`.github/workflows/release.yml`）：`main` への `push` で [Release Please](https://github.com/googleapis/release-please) がリリース PR を自動作成し、マージすると macOS (Apple Silicon) / Windows (x64) 向けのデスクトップアプリと `dan` CLI をビルドして GitHub Releases に公開します。
+  - GitHub リポジトリの `Settings → Actions → General → Workflow permissions` で **「Allow GitHub Actions to create and approve pull requests」** を有効にしてください。
+  - macOS 版は未署名ビルドのため、初回起動前に以下を実行してください：
+    ```sh
+    xattr -cr /Applications/Dandori.app
+    ```
