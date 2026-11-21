@@ -87,5 +87,6 @@ mise run app-dev
 ## CI / リリース（GitHub Actions）
 
 - **CI**（`.github/workflows/ci.yml`）：すべての `push` および `main` への PR で macOS / Windows のテスト・`clippy`・`rustfmt`・フロントエンドビルドを実行します。
-- **Release**（`.github/workflows/release.yml`）：`main` への `push` で [Release Please](https://github.com/googleapis/release-please) がリリース PR を自動作成し、マージすると macOS (Apple Silicon) / Windows (x64) 向けのデスクトップアプリと `dan` CLI をビルドして GitHub Releases に公開します。
+- **Release**（`.github/workflows/release.yml`）：`main` への `push` で [Release Please](https://github.com/googleapis/release-please) がリリース PR を自動作成し、マージすると macOS (Apple Silicon) / Windows (x64) 向けのデスクトップアプリ（`tauri-plugin-updater` 用の `.sig` / `latest.json` を含む）と `dan` CLI をビルドして GitHub Releases に公開します。
   - GitHub リポジトリの `Settings → Actions → General → Workflow permissions` で **「Allow GitHub Actions to create and approve pull requests」** を有効にしてください。
+  - アプリの自動更新（`tauri-plugin-updater`）用に、`npx @tauri-apps/cli signer generate -w ~/.tauri/dandori.key` で鍵ペアを生成し、公開鍵を `crates/dandori-app/tauri.conf.json` の `plugins.updater.pubkey` へ、秘密鍵を GitHub Secrets（`TAURI_SIGNING_PRIVATE_KEY` および必要に応じて `TAURI_SIGNING_PRIVATE_KEY_PASSWORD`）へ登録してください。

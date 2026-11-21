@@ -11,6 +11,7 @@ import type {
   Session,
   Snapshot,
   Task,
+  UpdateInfo,
 } from "./types";
 
 type View = "main" | "done" | "history" | "settings";
@@ -131,6 +132,9 @@ export function App() {
   const [restoreConfirmOp, setRestoreConfirmOp] = useState<Operation | null>(
     null,
   );
+  const [availableUpdate, setAvailableUpdate] = useState<UpdateInfo | null>(
+    null,
+  );
 
   const showToast = useCallback((msg: string, canUndo = true) => {
     setToast({ msg, canUndo });
@@ -188,6 +192,10 @@ export function App() {
 
   useEffect(() => {
     refresh(false);
+    // 起動時にバックグラウンドで更新有無を確認（オフラインや公開鍵未設定時は無視）
+    api.checkUpdate().then((u) => {
+      if (u) setAvailableUpdate(u);
+    }).catch(() => {});
     let cleanup: (() => void) | undefined;
     api.onDbChanged(() => {
       refresh(true);
@@ -474,7 +482,24 @@ export function App() {
     >
       {/* ヘッダー */}
       <header className="flex items-center justify-between px-6 py-3 border-b dd-border dd-surface shrink-0">
-        <div className="font-semibold tracking-wide">Dandori</div>
+        <div className="flex items-center gap-3">
+          <div className="font-semibold tracking-wide">Dandori</div>
+          {availableUpdate && (
+            <button
+              onClick={() => {
+                setView("settings");
+                setSelectedId(null);
+              }}
+              className="text-xs font-medium px-2 py-0.5 rounded-full cursor-pointer"
+              style={{
+                background: "var(--accent-weak)",
+                color: "var(--accent)",
+              }}
+            >
+              v{availableUpdate.version} あり
+            </button>
+          )}
+        </div>
         <nav className="flex items-center gap-1 text-sm">
           {(
             [
@@ -801,6 +826,8 @@ export function App() {
           {view === "settings" && (
             <SettingsView
               snap={snap}
+              availableUpdate={availableUpdate}
+              onUpdateFound={setAvailableUpdate}
               onFontSize={changeFontSize}
               onBackup={async () => {
                 try {
@@ -1257,15 +1284,50 @@ function HistoryView({
 
 function SettingsView({
   snap,
+  availableUpdate,
+  onUpdateFound,
   onFontSize,
   onBackup,
   onRevealDb,
 }: {
   snap: Snapshot;
+  availableUpdate: UpdateInfo | null;
+  onUpdateFound: (u: UpdateInfo | null) => void;
   onFontSize: (px: number) => void;
   onBackup: () => void;
   onRevealDb: () => void;
 }) {
+  const [updateState, setUpdateState] = useState<
+    "idle" | "checking" | "up_to_date" | "installing" | "error"
+  >("idle");
+  const [updateError, setUpdateError] = useState<string | null>(null);
+
+  const handleCheckUpdate = async () => {
+    setUpdateState("checking");
+    setUpdateError(null);
+    try {
+      const info = await api.checkUpdate();
+      onUpdateFound(info);
+      setUpdateState(info ? "idle" : "up_to_date");
+    } catch (e) {
+      const ce = e as CommandError;
+      setUpdateError(ce?.message || String(e));
+      setUpdateState("error");
+    }
+  };
+
+  const handleInstallUpdate = async () => {
+    setUpdateState("installing");
+    setUpdateError(null);
+    try {
+      await api.installUpdate();
+    } catch (e) {
+      const ce = e as CommandError;
+      setUpdateError(ce?.message || String(e));
+      setUpdateState("error");
+    }
+  };
+
   return (
     <div className="max-w-[640px] mx-auto space-y-5">
       <h2 className="font-semibold text-lg">設定</h2>
@@ -1324,6 +1386,55 @@ function SettingsView({
           >
             今すぐ実行
           </button>
+        </div>
+
+        <div className="border-t dd-border pt-4 space-y-2">
+          <div className="flex justify-between items-center gap-4">
+            <div>
+              <div className="font-medium">アップデート</div>
+              <div className="text-sm dd-sub">
+                現在のバージョン：v{snap.app_version}
+                {updateState === "up_to_date" && "（最新です）"}
+                {availableUpdate && ` → v${availableUpdate.version} が利用可能`}
+              </div>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              {availableUpdate ? (
+                <button
+                  onClick={handleInstallUpdate}
+                  disabled={updateState === "installing"}
+                  className="text-sm font-medium text-white rounded-md px-3 py-1 cursor-pointer disabled:opacity-60"
+                  style={{ background: "var(--accent)" }}
+                >
+                  {updateState === "installing"
+                    ? "更新中…"
+                    : "更新して再起動"}
+                </button>
+              ) : (
+                <button
+                  onClick={handleCheckUpdate}
+                  disabled={updateState === "checking"}
+                  className="text-sm border dd-border rounded-md px-3 py-1 cursor-pointer disabled:opacity-60"
+                >
+                  {updateState === "checking"
+                    ? "確認中…"
+                    : "アップデートを確認"}
+                </button>
+              )}
+            </div>
+          </div>
+          {availableUpdate?.body && (
+            <div className="dd-md text-xs dd-sub border dd-border rounded-md p-3 max-h-40 overflow-y-auto">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {availableUpdate.body}
+              </ReactMarkdown>
+            </div>
+          )}
+          {updateError && (
+            <div className="text-xs" style={{ color: "var(--danger)" }}>
+              {updateError}
+            </div>
+          )}
         </div>
       </div>
 

@@ -61,6 +61,13 @@ export interface Snapshot {
   font_size: number;
   db_path: string;
   last_backup: string | null;
+  app_version: string;
+}
+
+export interface UpdateInfo {
+  version: string;
+  current_version: string;
+  body: string | null;
 }
 
 export interface HistoryPayload {

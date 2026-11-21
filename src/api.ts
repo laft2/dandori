@@ -7,6 +7,7 @@ import type {
   PosInput,
   Snapshot,
   UndoOutcome,
+  UpdateInfo,
 } from "./types";
 
 const isTauri = () =>
@@ -119,4 +120,14 @@ export async function onDbChanged(cb: () => void): Promise<() => void> {
   if (!isTauri()) return () => {};
   const unlisten = await listen("db-changed", () => cb());
   return unlisten;
+}
+
+export async function checkUpdate(): Promise<UpdateInfo | null> {
+  if (!isTauri()) return null;
+  return invoke<UpdateInfo | null>("check_update");
+}
+
+export async function installUpdate(): Promise<void> {
+  if (!isTauri()) return;
+  await invoke("install_update");
 }

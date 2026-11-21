@@ -9,6 +9,7 @@ use dandori_core::*;
 use serde::{Deserialize, Serialize};
 use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_opener::OpenerExt;
+use tauri_plugin_updater::UpdaterExt;
 
 const SETTING_FONT_SIZE: &str = "ui_font_size";
 const SETTING_LAST_BACKUP: &str = "last_backup_at";
@@ -55,6 +56,14 @@ struct Snapshot {
     font_size: u32,
     db_path: String,
     last_backup: Option<String>,
+    app_version: String,
+}
+
+#[derive(Serialize)]
+struct UpdateInfo {
+    version: String,
+    current_version: String,
+    body: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -116,7 +125,7 @@ fn parse_opt_date(raw: Option<&str>) -> Result<Option<NaiveDate>> {
 }
 
 #[tauri::command]
-fn get_snapshot(state: State<'_, AppState>) -> CmdResult<Snapshot> {
+fn get_snapshot(app: AppHandle, state: State<'_, AppState>) -> CmdResult<Snapshot> {
     let s = state.store.lock().unwrap();
     let font_size = s
         .get_setting::<u32>(SETTING_FONT_SIZE)?
@@ -132,6 +141,7 @@ fn get_snapshot(state: State<'_, AppState>) -> CmdResult<Snapshot> {
         font_size,
         db_path: state.db_path.display().to_string(),
         last_backup,
+        app_version: app.package_info().version.to_string(),
     })
 }
 
@@ -280,6 +290,45 @@ fn open_external_url(app: AppHandle, url: String) -> CmdResult<()> {
     Ok(())
 }
 
+fn updater_err(e: tauri_plugin_updater::Error) -> CommandError {
+    let msg = e.to_string();
+    let friendly = if msg.to_lowercase().contains("pubkey") || msg.contains("Empty") {
+        "アップデーターの公開鍵が未設定です。tauri.conf.json の plugins.updater.pubkey を設定してください"
+            .into()
+    } else {
+        msg
+    };
+    CommandError {
+        code: "updater",
+        message: friendly,
+        conflicts: None,
+    }
+}
+
+#[tauri::command]
+async fn check_update(app: AppHandle) -> CmdResult<Option<UpdateInfo>> {
+    let updater = app.updater().map_err(updater_err)?;
+    let update = updater.check().await.map_err(updater_err)?;
+    Ok(update.map(|u| UpdateInfo {
+        version: u.version,
+        current_version: u.current_version,
+        body: u.body,
+    }))
+}
+
+#[tauri::command]
+async fn install_update(app: AppHandle) -> CmdResult<()> {
+    let updater = app.updater().map_err(updater_err)?;
+    let Some(update) = updater.check().await.map_err(updater_err)? else {
+        return Ok(());
+    };
+    update
+        .download_and_install(|_, _| {}, || {})
+        .await
+        .map_err(updater_err)?;
+    app.restart();
+}
+
 fn perform_backup(store: &Store, db_path: &std::path::Path) -> Result<PathBuf> {
     let dir = paths::backup_dir(db_path);
     let dest = store.backup_to(&dir, BACKUP_KEEP)?;
@@ -342,6 +391,9 @@ fn main() {
         .plugin(tauri_plugin_opener::init())
         .manage(state)
         .setup(|app| {
+            #[cfg(desktop)]
+            app.handle()
+                .plugin(tauri_plugin_updater::Builder::new().build())?;
             start_background_watcher(app.handle().clone());
             if let Some(w) = app.get_webview_window("main") {
                 let _ = w.show();
@@ -370,6 +422,8 @@ fn main() {
             run_backup,
             reveal_db_dir,
             open_external_url,
+            check_update,
+            install_update,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Dandori application");
