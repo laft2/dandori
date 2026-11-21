@@ -35,7 +35,7 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDdBQTlBNDU5QjhBRjI0ODkKUldTSkpLKzRXYVNwZWpEUjZRVGQxQWwyeE5ncnJuMXRGaUdlTjUzT1drSllLTFZiQmZsNTJaWW4K",
       "endpoints": [
         "https://github.com/laft2/dandori/releases/latest/download/latest.json"
       ]
