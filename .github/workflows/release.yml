@@ -24,7 +24,7 @@ jobs:
     steps:
       - name: Run release-please
         id: release
-        uses: googleapis/release-please-action@v4
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -43,19 +43,19 @@ jobs:
             target: x86_64-pc-windows-msvc
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ needs.release-please.outputs.tag_name }}
 
       - name: Set up mise (Rust & Node)
-        uses: jdx/mise-action@v5
+        uses: jdx/mise-action@90f833d396d0cc3674b631d2d225e306476c303a # v5.2.10
         with:
           install: true
           cache: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Cache npm
-        uses: actions/cache@v4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ${{ runner.temp }}/npm-cache
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
@@ -63,7 +63,7 @@ jobs:
             npm-${{ runner.os }}-
 
       - name: Cache Cargo
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
           shared-key: release-${{ matrix.target }}
 
@@ -76,7 +76,7 @@ jobs:
         run: npm run build
 
       - name: Build & upload desktop app (Tauri)
-        uses: tauri-apps/tauri-action@v0
+        uses: tauri-apps/tauri-action@1deb371b0cd8bd54025b384f1cd735e725c4060f # action-v1.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # tauri-plugin-updater を導入する際に以下を有効化:
@@ -86,6 +86,7 @@ jobs:
           projectPath: crates/dandori-app
           releaseId: ${{ needs.release-please.outputs.id }}
           tagName: ${{ needs.release-please.outputs.tag_name }}
+          releaseDraft: false
 
       - name: Build dan CLI
         run: cargo build --release -p dandori-cli

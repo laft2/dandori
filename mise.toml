@@ -1,6 +1,7 @@
 [tools]
 rust = { version = "1.98.1", components = "clippy,rustfmt" }
 node = "24.20.0"
+pinact = "5.0.2"
 
 [tasks.test]
 description = "Run all Rust tests"
@@ -25,3 +26,7 @@ run = "cargo run -p dandori-app --features custom-protocol"
 [tasks.app-dev]
 description = "Launch the Dandori desktop app connected to Vite dev server (run npm run dev separately)"
 run = "cargo run -p dandori-app"
+
+[tasks.pinact]
+description = "Pin and update GitHub Actions to commit SHAs"
+run = "pinact run --update"
