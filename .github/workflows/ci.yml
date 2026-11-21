@@ -11,7 +11,6 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
-  npm_config_cache: ${{ runner.temp }}/npm-cache
 
 jobs:
   check:
@@ -35,7 +34,7 @@ jobs:
       - name: Cache npm
         uses: actions/cache@v4
         with:
-          path: ${{ env.npm_config_cache }}
+          path: ${{ runner.temp }}/npm-cache
           key: npm-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             npm-${{ runner.os }}-
@@ -46,6 +45,8 @@ jobs:
           shared-key: ci
 
       - name: Install frontend dependencies
+        env:
+          npm_config_cache: ${{ runner.temp }}/npm-cache
         run: npm ci
 
       - name: Build & typecheck frontend
