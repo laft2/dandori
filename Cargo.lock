@@ -796,7 +796,7 @@ dependencies = [
 
 [[package]]
 name = "dandori-app"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "dandori-core",
@@ -810,7 +810,7 @@ dependencies = [
 
 [[package]]
 name = "dandori-cli"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "clap",
@@ -822,7 +822,7 @@ dependencies = [
 
 [[package]]
 name = "dandori-core"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "dirs 6.0.0",

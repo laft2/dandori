@@ -4,9 +4,9 @@
   "version": "0.2.0",
   "identifier": "app.dandori.desktop",
   "build": {
-    "beforeDevCommand": "npm --prefix ../.. run dev",
+    "beforeDevCommand": "npm --prefix .. run dev",
     "devUrl": "http://localhost:5173",
-    "beforeBuildCommand": "npm --prefix ../.. run build",
+    "beforeBuildCommand": "npm --prefix .. run build",
     "frontendDist": "../../dist"
   },
   "app": {

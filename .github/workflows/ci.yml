@@ -60,3 +60,7 @@ jobs:
 
       - name: Run tests
         run: cargo test --workspace
+
+      - name: Verify Tauri build & bundle
+        working-directory: crates/dandori-app
+        run: npx tauri build --debug --config tauri.ci.conf.json
