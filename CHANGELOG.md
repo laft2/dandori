@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/laft2/dandori/compare/v0.2.0...v0.2.1) (2026-11-22)
+
+
+### Bug Fixes
+
+* correct Tauri beforeBuildCommand path and verify Tauri build in CI ([396aa69](https://github.com/laft2/dandori/commit/396aa6990fa8ba76dee0bbaf7d065e37daefa098))
+
 ## [0.2.0](https://github.com/laft2/dandori/compare/v0.1.0...v0.2.0) (2026-11-21)
 
 
